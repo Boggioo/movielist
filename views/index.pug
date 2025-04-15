@@ -1,5 +1,13 @@
-extends layout
-
-block content
-  h1= title
-  p Welcome to #{title}
+doctype html
+html
+  head
+    title Homepage - Film Popolari
+  body
+    h1 Film Popolari
+    ul
+      each movie in movies
+        li
+          a(href=`/movie/${movie.id}`)
+            img(src=`https://image.tmdb.org/t/p/w500${movie.poster_path}` alt=movie.title)
+            h3= movie.title
+    a(href='/search') Cerca Film

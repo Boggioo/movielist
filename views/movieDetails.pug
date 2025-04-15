@@ -1,0 +1,28 @@
+doctype html
+html
+    head
+        title= movie.title
+    body
+
+        form(action=`/favorite/${movie.id}` method='POST')
+        button(type='submit') Aggiungi ai Preferiti
+        h1= movie.title
+        img(src=`https://image.tmdb.org/t/p/w500${movie.poster_path}` alt=movie.title)
+        p= movie.overview
+        if movie.cast && movie.cast.length
+            h3 Cast
+            ul
+                each actor in movie.cast
+                    li= actor.name
+        else
+            p Nessun attore disponibile
+        if movie.genres && movie.genres.length
+            h3 Generi
+            ul
+                each genre in movie.genres
+                    li= genre.name
+        else
+            p Nessun genere disponibile.
+
+        a(href='/') Torna alla Homepage
+

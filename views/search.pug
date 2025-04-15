@@ -1,0 +1,13 @@
+doctype html
+html
+    head
+        title Risultati di ricerca
+    body
+        h1 Risultati di ricerca per "#{query}"
+        ul
+            each movie in movies
+                li
+                    a(href=`/movie/${movie.id}`)
+                        img(src=`https://image.tmdb.org/t/p/w500${movie.poster_path}` alt=movie.title)
+                        h3= movie.title
+        a(href='/') Torna alla Homepage
