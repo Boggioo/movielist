@@ -1,8 +1,129 @@
-body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+/* === COLORI PERSONALIZZATI === */
+:root {
+  --accent-color: #facc15;
+  --bg-dark: #121212;
+  --text-light: #f5f5f5;
 }
 
-a {
-  color: #00B7FF;
+/* === BODY & BACKGROUND === */
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-light);
+}
+
+/* === NAVBAR === */
+.navbar-brand {
+  font-weight: bold;
+  font-size: 1.6rem;
+  color: var(--accent-color) !important;
+}
+
+.nav-link {
+  color: #ccc !important;
+  transition: color 0.3s;
+}
+
+.nav-link:hover {
+  color: var(--accent-color) !important;
+}
+
+/* === CARDS FILM === */
+.card {
+  background-color: #1f1f1f;
+  border: none;
+  transition: transform 0.3s ease;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: scale(1.03);
+}
+
+.card-title {
+  color: var(--accent-color);
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+/* === BOTTONI PERSONALIZZATI === */
+.btn-warning {
+  background-color: var(--accent-color);
+  border: none;
+  color: #000;
+  font-weight: 600;
+}
+
+.btn-outline-warning {
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+}
+
+.btn-outline-warning:hover {
+  background-color: var(--accent-color);
+  color: #000;
+}
+
+/* === DETTAGLI FILM === */
+.movie-details h2 {
+  color: var(--accent-color);
+}
+
+.movie-details p {
+  color: #ccc;
+  font-size: 1rem;
+}
+
+/* === RICERCA === */
+.form-control::placeholder {
+  color: #aaa;
+  opacity: 1;
+}
+
+input.form-control, textarea.form-control {
+  background-color: #2a2a2a;
+  color: white;
+  border: none;
+}
+
+/* === LOGIN/REGISTRAZIONE === */
+.auth-card {
+  background-color: #1e1e1e;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+}
+
+.auth-card input {
+  background-color: #2a2a2a;
+  color: white;
+  border: none;
+}
+
+.auth-card input::placeholder {
+  color: #888;
+}
+
+/* === PREFERITI ICON === */
+.favorite-button {
+  background: none;
+  border: none;
+  color: var(--accent-color);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.favorite-button.active {
+  color: #f87171;
+}
+
+/* === RESPONSIVE TWEAKS === */
+@media (max-width: 768px) {
+  .movie-details {
+    flex-direction: column;
+  }
+
+  .card-title {
+    font-size: 1rem;
+  }
 }

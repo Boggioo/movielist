@@ -1,11 +1,7 @@
 doctype html
 html
-    head
-        title= movie.title
     body
 
-        form(action=`/favorite/${movie.id}` method='POST')
-        button(type='submit') Aggiungi ai Preferiti
         h1= movie.title
         img(src=`https://image.tmdb.org/t/p/w500${movie.poster_path}` alt=movie.title)
         p= movie.overview
@@ -23,6 +19,11 @@ html
                     li= genre.name
         else
             p Nessun genere disponibile.
+
+        form(action=`/favorite/${movie.id}` method='POST')
+        button(type='submit') Aggiungi ai Preferiti
+        br
+        br
 
         a(href='/') Torna alla Homepage
 

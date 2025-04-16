@@ -15,7 +15,6 @@ const getPopularMovies = async () => {
 };
 
 // Funzione per ottenere i dettagli di un film
-// Funzione per ottenere i dettagli di un film + cast
 const getMovieDetails = async (movieId) => {
     const [detailsResponse, creditsResponse] = await Promise.all([
         tmdbApi.get(`movie/${movieId}`),
