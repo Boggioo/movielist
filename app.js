@@ -4,6 +4,8 @@ const session = require('express-session');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const passport = require('passport');
+const syncDatabase = require('./config/sync');
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
@@ -21,15 +23,25 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use(session({
+    secret: 'your-secret-key',
+    resave: false,
+    saveUninitialized: false
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Sincronizza il database all'avvio
+syncDatabase().then(() => {
+    console.log('Database pronto per l\'uso');
+}).catch(err => {
+    console.error('Errore durante l\'inizializzazione del database:', err);
+});
+
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/auth',authRoutes);
-
-app.use(session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-}));
+app.use('/', authRoutes);
 
 app.use(express.urlencoded({ extended: true }));
 

@@ -1,13 +1,21 @@
-doctype html
-html
-  head
-    title Homepage - Film Popolari
-  body
-    h1 Film Popolari
+extends layout
+
+block content
+  div.container.mt-4
+    div.row.justify-content-center.mb-4
+      div.col-md-6
+        form(action='/search' method='GET' class='d-flex')
+          input.form-control.me-2(type='search' name='query' placeholder='Cerca un film...' aria-label='Search')
+          button.btn.btn-outline-primary(type='submit') Cerca
+    
+    h1.text-center.mb-4 Film Popolari
     ul
       each movie in movies
-        li
-          a(href=`/movie/${movie.id}`)
-            img(src=`https://image.tmdb.org/t/p/w500${movie.poster_path}` alt=movie.title)
-            h3= movie.title
-    a(href='/search') Cerca Film
+        h2/= movie.title
+        br
+        a(href=`/movie/${movie.id}`)
+          img(src=`https://image.tmdb.org/t/p/w500${movie.poster_path}` alt=movie.title)
+        br
+        br
+        br
+        br

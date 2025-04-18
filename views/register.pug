@@ -1,4 +1,21 @@
-form(action='/register' method='POST')
-    input(type='text' name='username' placeholder='Username')
-    input(type='password' name='password' placeholder='Password')
-    button(type='submit') Registrati
+extends layout
+
+block content
+  .row.justify-content-center
+    .col-md-6
+      .card
+        .card-header.text-center
+          h3 Registrazione
+        .card-body
+          form(action='/register' method='POST')
+            .mb-3
+              label.form-label(for='username') Nome utente
+              input#username.form-control(type='text' name='username' placeholder='Inserisci il tuo nome utente' required)
+            .mb-3
+              label.form-label(for='password') Password
+              input#password.form-control(type='password' name='password' placeholder='Inserisci la tua password' required)
+            .d-grid.gap-2
+              button.btn.btn-primary(type='submit') Registrati
+            .mt-3.text-center
+              p Hai già un account? 
+                a(href='/login') Accedi qui
