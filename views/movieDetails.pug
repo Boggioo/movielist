@@ -1,29 +1,61 @@
-doctype html
-html
-    body
+extends layout
 
-        h1= movie.title
-        img(src=`https://image.tmdb.org/t/p/w500${movie.poster_path}` alt=movie.title)
-        p= movie.overview
-        if movie.cast && movie.cast.length
-            h3 Cast
-            ul
-                each actor in movie.cast
-                    li= actor.name
+block content
+  .container.mt-4
+    .row
+      .col-md-4.mb-4
+        if movie.poster_path
+          img.img-fluid.rounded.shadow(src=`https://image.tmdb.org/t/p/w500${movie.poster_path}` alt=movie.title)
         else
-            p Nessun attore disponibile
+          .bg-light.text-center.py-5.rounded.shadow
+            i.bi.bi-film.fs-1
+      
+      .col-md-8
+        h1.mb-3= movie.title
+        
+        if movie.release_date
+          p.text-muted
+            i.bi.bi-calendar-event.me-2
+            | #{new Date(movie.release_date).getFullYear()}
+        
+        if movie.vote_average
+          .mb-3
+            span.badge.bg-warning.text-dark.me-2
+              i.bi.bi-star-fill.me-1
+              | #{movie.vote_average.toFixed(1)}/10
+        
+        .mb-4
+          p= movie.overview
+        
         if movie.genres && movie.genres.length
-            h3 Generi
-            ul
-                each genre in movie.genres
-                    li= genre.name
-        else
-            p Nessun genere disponibile.
-
-        form(action=`/favorite/${movie.id}` method='POST')
-        button(type='submit') Aggiungi ai Preferiti
-        br
-        br
-
-        a(href='/') Torna alla Homepage
+          .mb-4
+            h4 Generi
+            .d-flex.flex-wrap.gap-2
+              each genre in movie.genres
+                span.badge.bg-secondary= genre.name
+        
+        if movie.cast && movie.cast.length
+          .mb-4
+            h4 Cast
+            .row
+              each actor in movie.cast
+                .col-md-6.mb-2
+                  .d-flex.align-items-center
+                    i.bi.bi-person-circle.me-2
+                    span= actor.name
+        
+        .d-flex.mt-4
+          if user
+            form.me-3(action=`/favorite/${movie.id}` method='POST')
+              button.btn.btn-primary(type='submit')
+                i.bi.bi-heart-fill.me-2
+                | Aggiungi ai Preferiti
+          else
+            a.btn.btn-primary.me-3(href='/login')
+              i.bi.bi-heart-fill.me-2
+              | Accedi per aggiungere ai preferiti
+          
+          a.btn.btn-outline-secondary(href='/')
+            i.bi.bi-arrow-left.me-2
+            | Torna alla Homepage
 

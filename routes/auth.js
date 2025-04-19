@@ -4,6 +4,7 @@ const LocalStrategy = require('passport-local').Strategy;
 const router = express.Router();
 const User = require('../models/user');
 const Favorite = require('../models/favorite');
+const { getMovieDetails } = require('./tmdb');
 
 passport.use(new LocalStrategy(async (username, password, done) => {
     try {
@@ -83,22 +84,55 @@ router.get('/logout', (req, res) => {
 
 // Aggiungi film ai preferiti
 router.post('/favorite/:movieId', async (req, res) => {
+    if (!req.user) {
+        return res.redirect('/login');
+    }
+    
     const movieId = req.params.movieId;
     const userId = req.user.id;
-    const movie = await getMovieDetails(movieId); // Usa la funzione di TMDB
-    await Favorite.create({
-        userId,
-        movieId,
-        title: movie.title,
-        posterPath: movie.poster_path,
+    
+    // Verifica se il film è già nei preferiti
+    const existingFavorite = await Favorite.findOne({
+        where: { userId, movieId }
     });
-    res.redirect('/');
+    
+    if (!existingFavorite) {
+        const movie = await getMovieDetails(movieId);
+        await Favorite.create({
+            userId,
+            movieId,
+            title: movie.title,
+            posterPath: movie.poster_path,
+        });
+    }
+    
+    // Reindirizza alla pagina del film
+    res.redirect(`/movie/${movieId}`);
 });
 
 // Visualizza i preferiti dell'utente
 router.get('/favorites', async (req, res) => {
+    if (!req.user) {
+        return res.redirect('/login');
+    }
     const favorites = await Favorite.findAll({ where: { userId: req.user.id } });
     res.render('favorites', { favorites });
+});
+
+// Rimuovi film dai preferiti
+router.post('/favorite/remove/:movieId', async (req, res) => {
+    if (!req.user) {
+        return res.redirect('/login');
+    }
+    
+    const movieId = req.params.movieId;
+    const userId = req.user.id;
+    
+    await Favorite.destroy({
+        where: { userId, movieId }
+    });
+    
+    res.redirect('/favorites');
 });
 
 module.exports = router;

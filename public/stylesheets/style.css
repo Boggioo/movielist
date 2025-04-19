@@ -27,6 +27,30 @@ body {
   color: var(--accent-color) !important;
 }
 
+/* === ICONA PROFILO === */
+.bi-person-circle {
+  font-size: 1.2rem;
+  color: var(--accent-color);
+}
+
+.dropdown-menu {
+  background-color: #1f1f1f;
+  border: 1px solid #333;
+}
+
+.dropdown-item {
+  color: #ccc;
+}
+
+.dropdown-item:hover {
+  background-color: #2a2a2a;
+  color: var(--accent-color);
+}
+
+.dropdown-divider {
+  border-top: 1px solid #333;
+}
+
 /* === CARDS FILM === */
 .card {
   background-color: #1f1f1f;
@@ -117,6 +141,20 @@ input.form-control, textarea.form-control {
   color: #f87171;
 }
 
+/* === INDICATORE STATO UTENTE === */
+.user-status-indicator .badge {
+  background-color: var(--accent-color) !important;
+  color: #000 !important;
+  font-weight: 600;
+  padding: 0.5rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+}
+
+.user-status-indicator .bi-check-circle {
+  color: #000;
+}
+
 /* === RESPONSIVE TWEAKS === */
 @media (max-width: 768px) {
   .movie-details {
@@ -125,5 +163,11 @@ input.form-control, textarea.form-control {
 
   .card-title {
     font-size: 1rem;
+  }
+  
+  /* Rimosso il display: none per mantenere visibile l'indicatore di stato utente */
+  .user-status-indicator {
+    display: block;
+    margin-bottom: 10px;
   }
 }

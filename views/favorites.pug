@@ -1,0 +1,26 @@
+extends layout
+
+block content
+  h1.mb-4 I miei film preferiti
+  
+  if favorites && favorites.length > 0
+    .row
+      each favorite in favorites
+        .col-md-3.mb-4
+          .card
+            if favorite.posterPath
+              img.card-img-top(src=`https://image.tmdb.org/t/p/w500${favorite.posterPath}` alt=favorite.title)
+            else
+              .card-img-top.bg-light.text-center.py-5
+                i.bi.bi-film.fs-1
+            .card-body
+              h5.card-title= favorite.title
+              a.btn.btn-primary.btn-sm(href=`/movie/${favorite.movieId}`) Dettagli
+              form.d-inline.ms-2(action=`/favorite/remove/${favorite.movieId}` method='POST')
+                button.btn.btn-danger.btn-sm(type='submit')
+                  i.bi.bi-trash
+                  span.ms-1 Rimuovi
+  else
+    .alert.alert-info
+      p Non hai ancora aggiunto film ai preferiti.
+      a.btn.btn-primary.mt-2(href='/') Sfoglia i film popolari

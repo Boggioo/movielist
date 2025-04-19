@@ -1,13 +1,49 @@
-doctype html
-html
-    head
-        title Risultati di ricerca
-    body
-        h1 Risultati di ricerca per "#{query}"
-        ul
-            each movie in movies
-                li
-                    a(href=`/movie/${movie.id}`)
-                        img(src=`https://image.tmdb.org/t/p/w500${movie.poster_path}` alt=movie.title)
-                        h3= movie.title
-        a(href='/') Torna alla Homepage
+extends layout
+
+block content
+  .container.mt-4
+    .row.justify-content-center.mb-4
+      .col-md-8.mx-auto
+        form(action='/search' method='GET' class='d-flex')
+          input.form-control.me-2(type='search' name='query' placeholder='Cerca un film...' aria-label='Search' value=query)
+          button.btn.btn-outline-primary(type='submit')
+            i.bi.bi-search.me-1
+            | Cerca
+    
+    if query
+      h2.text-center.mb-4 Risultati per "#{query}"
+    
+    if movies && movies.length > 0
+      .row
+        each movie in movies
+          .col-md-3.mb-4
+            .card.h-100.shadow-sm
+              if movie.poster_path
+                a(href=`/movie/${movie.id}`)
+                  img.card-img-top(src=`https://image.tmdb.org/t/p/w500${movie.poster_path}` alt=movie.title)
+              else
+                .card-img-top.bg-light.text-center.py-5
+                  i.bi.bi-film.fs-1
+              .card-body
+                h5.card-title.text-truncate= movie.title
+                if movie.release_date
+                  p.card-text.text-muted
+                    i.bi.bi-calendar-event.me-1
+                    | #{new Date(movie.release_date).getFullYear()}
+                if movie.vote_average
+                  p.card-text
+                    span.badge.bg-warning.text-dark
+                      i.bi.bi-star-fill.me-1
+                      | #{movie.vote_average.toFixed(1)}/10
+              .card-footer.bg-transparent.border-top-0
+                a.btn.btn-primary.btn-sm.w-100(href=`/movie/${movie.id}`)
+                  i.bi.bi-info-circle.me-1
+                  | Dettagli
+    else if query
+      .alert.alert-info.text-center
+        i.bi.bi-info-circle.me-2
+        | Nessun risultato trovato per "#{query}"
+        .mt-3
+          a.btn.btn-primary(href='/')
+            i.bi.bi-house.me-1
+            | Torna alla Homepage

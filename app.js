@@ -32,6 +32,12 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Middleware per rendere l'utente disponibile in tutti i template
+app.use((req, res, next) => {
+  res.locals.user = req.user;
+  next();
+});
+
 // Sincronizza il database all'avvio
 syncDatabase().then(() => {
     console.log('Database pronto per l\'uso');
