@@ -4,11 +4,43 @@ block content
   .container.mt-4
     .row.justify-content-center.mb-4
       .col-md-8.mx-auto
-        form(action='/search' method='GET' class='d-flex')
-          input.form-control.me-2(type='search' name='query' placeholder='Cerca un film...' aria-label='Search' value=query)
-          button.btn.btn-outline-primary(type='submit')
-            i.bi.bi-search.me-1
-            | Cerca
+        form(action='/search' method='GET')
+          .card.shadow-sm.mb-4
+            .card-header.bg-primary.text-white
+              h5.mb-0 Ricerca Avanzata
+            .card-body
+              .row.mb-3
+                .col-md-12
+                  label.form-label(for='query') Titolo del film
+                  input.form-control#query(type='search' name='query' placeholder='Cerca un film...' aria-label='Search' value=query)
+              .row.mb-3
+                .col-md-6
+                  label.form-label(for='year') Anno di uscita
+                  input.form-control#year(type='number' name='year' placeholder='Es. 2023' min='1900' max='2099' value=year)
+                .col-md-6
+                  label.form-label(for='vote') Voto minimo: 
+                    span#voteValue= vote || 'Qualsiasi'
+                  .d-flex.align-items-center
+                    input.form-range#vote(type='range' name='vote' min='1' max='10' step='1' value=vote || '1')
+                    small.ms-2 1-10
+                  script.
+                    document.getElementById('vote').addEventListener('input', function() {
+                      const value = this.value;
+                      document.getElementById('voteValue').textContent = value || 'Qualsiasi';
+                    });
+              .row.mb-3
+                .col-md-12
+                  label.form-label Generi
+                  .row
+                    each genre in genres
+                      .col-md-4.mb-2
+                        .form-check
+                          input.form-check-input(type='checkbox', id=`genre-${genre.id}`, name='genres', value=genre.id, checked=selectedGenres && selectedGenres.includes(genre.id.toString()))
+                          label.form-check-label(for=`genre-${genre.id}`)= genre.name
+              .d-grid
+                button.btn.btn-primary(type='submit')
+                  i.bi.bi-search.me-1
+                  | Cerca Film
     
     if query
       h2.text-center.mb-4 Risultati per "#{query}"

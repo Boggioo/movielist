@@ -1,30 +1,38 @@
-const express = require('express');
-const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy;
-const router = express.Router();
-const User = require('../models/user');
-const Favorite = require('../models/favorite');
-const { getMovieDetails } = require('./tmdb');
+// Importazione delle dipendenze necessarie
+const express = require('express');         // Framework web
+const passport = require('passport');       // Middleware di autenticazione
+const LocalStrategy = require('passport-local').Strategy;  // Strategia di autenticazione locale
+const router = express.Router();            // Router Express
+const User = require('../models/user');     // Modello utente
+const Favorite = require('../models/favorite');  // Modello preferiti
+const { getMovieDetails } = require('./tmdb');  // Funzioni API TMDB
+const flash = require('connect-flash');     // Messaggi flash per notifiche
 
+// Configurazione della strategia di autenticazione locale
 passport.use(new LocalStrategy(async (username, password, done) => {
     try {
+        // Cerca l'utente nel database
         const user = await User.findOne({ where: { username } });
-        if (!user) return done(null, false);
+        if (!user) return done(null, false);  // Utente non trovato
+        // Verifica la password
         const isValid = await user.validPassword(password);
-        if (!isValid) return done(null, false);
-        return done(null, user);
+        if (!isValid) return done(null, false);  // Password non valida
+        return done(null, user);  // Autenticazione riuscita
     } catch (err) {
-        return done(err);
+        return done(err);  // Errore durante l'autenticazione
     }
 }));
 
+// Serializzazione dell'utente per la sessione
 passport.serializeUser((user, done) => done(null, user.id));
+
+// Deserializzazione dell'utente dalla sessione
 passport.deserializeUser(async (id, done) => {
     try {
-        const user = await User.findByPk(id);
+        const user = await User.findByPk(id);  // Recupera l'utente dal database
         done(null, user);
     } catch (err) {
-        done(err);
+        done(err);  // Errore durante il recupero dell'utente
     }
 });
 
@@ -36,10 +44,13 @@ router.get('/register', (req, res) => {
     res.render('register');
 });
 
+// Gestione della registrazione di un nuovo utente
 router.post('/register', async (req, res) => {
     try {
+        // Validazione dei campi richiesti
         if (!req.body.username || !req.body.password) {
             console.error('Username e password sono richiesti');
+            req.flash('error', 'Username e password sono richiesti');
             return res.redirect('/register');
         }
 
@@ -47,6 +58,7 @@ router.post('/register', async (req, res) => {
         const existingUser = await User.findOne({ where: { username: req.body.username } });
         if (existingUser) {
             console.error('Username già in uso');
+            req.flash('error', 'Username già in uso. Per favore, scegli un altro nome utente.');
             return res.redirect('/register');
         }
 
@@ -70,10 +82,22 @@ router.post('/register', async (req, res) => {
     }
 });
 
-router.post('/login', passport.authenticate('local', {
-    successRedirect: '/',
-    failureRedirect: '/login'
-}));
+// Gestione del login utente
+router.post('/login', (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+        if (err) { return next(err); }  // Errore durante l'autenticazione
+        if (!user) {
+            // Credenziali non valide
+            req.flash('error', 'Credenziali non valide. Riprova.');
+            return res.redirect('/login');
+        }
+        // Login dell'utente
+        req.logIn(user, (err) => {
+            if (err) { return next(err); }
+            return res.redirect('/');  // Reindirizza alla home dopo il login
+        });
+    })(req, res, next);
+});
 
 router.get('/logout', (req, res) => {
     req.logout((err) => {
@@ -83,7 +107,9 @@ router.get('/logout', (req, res) => {
 });
 
 // Aggiungi film ai preferiti
+// Aggiunta di un film ai preferiti
 router.post('/favorite/:movieId', async (req, res) => {
+    // Verifica che l'utente sia autenticato
     if (!req.user) {
         return res.redirect('/login');
     }

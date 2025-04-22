@@ -32,9 +32,14 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Configurazione di connect-flash
+const flash = require('connect-flash');
+app.use(flash());
+
 // Middleware per rendere l'utente disponibile in tutti i template
 app.use((req, res, next) => {
   res.locals.user = req.user;
+  res.locals.messages = req.flash();
   next();
 });
 

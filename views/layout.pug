@@ -39,4 +39,8 @@ html(lang="it")
               li.nav-item
                 a.nav-link(href='/register') Registrati
     .container.mt-4
+      if messages && messages.error
+        .alert.alert-danger.mb-4
+          i.bi.bi-exclamation-triangle-fill.me-2
+          | #{messages.error}
       block content
