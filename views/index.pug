@@ -12,30 +12,113 @@ block content
         .text-center.mt-2
           a.btn.btn-link(href='/search') Ricerca Avanzata
     
-    h1.text-center.mb-4 Film Popolari
+    // Navigazione a tab per le diverse categorie
+    ul.nav.nav-tabs.mb-4#movieTabs(role='tablist')
+      li.nav-item(role='presentation')
+        button.nav-link.active#popular-tab(data-bs-toggle='tab' data-bs-target='#popular' type='button' role='tab' aria-selected='true')
+          i.bi.bi-fire.me-1
+          | Film Popolari
+      li.nav-item(role='presentation')
+        button.nav-link#toprated-tab(data-bs-toggle='tab' data-bs-target='#toprated' type='button' role='tab' aria-selected='false')
+          i.bi.bi-star.me-1
+          | Film con Voto Più Alto
+      li.nav-item(role='presentation')
+        button.nav-link#genres-tab(data-bs-toggle='tab' data-bs-target='#genres' type='button' role='tab' aria-selected='false')
+          i.bi.bi-grid.me-1
+          | Film per Genere
     
-    .row
-      each movie in movies
-        .col-md-3.mb-4
-          .card.h-100.shadow-sm
-            if movie.poster_path
-              a(href=`/movie/${movie.id}`)
-                img.card-img-top(src=`https://image.tmdb.org/t/p/w500${movie.poster_path}` alt=movie.title)
-            else
-              .card-img-top.bg-light.text-center.py-5
-                i.bi.bi-film.fs-1
-            .card-body
-              h5.card-title.text-truncate= movie.title
-              if movie.release_date
-                p.card-text.text-muted
-                  i.bi.bi-calendar-event.me-1
-                  | #{new Date(movie.release_date).getFullYear()}
-              if movie.vote_average
-                p.card-text
-                  span.badge.bg-warning.text-dark
-                    i.bi.bi-star-fill.me-1
-                    | #{movie.vote_average.toFixed(1)}/10
-            .card-footer.bg-transparent.border-top-0
-              a.btn.btn-primary.btn-sm.w-100(href=`/movie/${movie.id}`)
-                i.bi.bi-info-circle.me-1
-                | Dettagli
+    // Contenuto dei tab
+    .tab-content
+      // Tab Film Popolari
+      .tab-pane.fade.show.active#popular(role='tabpanel')
+        h2.mb-4.text-center Film Popolari
+        .row
+          each movie in popularMovies
+            .col-md-3.mb-4
+              .card.h-100.shadow-sm
+                if movie.poster_path
+                  a(href=`/movie/${movie.id}`)
+                    img.card-img-top(src=`https://image.tmdb.org/t/p/w500${movie.poster_path}` alt=movie.title)
+                else
+                  .card-img-top.bg-light.text-center.py-5
+                    i.bi.bi-film.fs-1
+                .card-body
+                  h5.card-title.text-truncate= movie.title
+                  if movie.release_date
+                    p.card-text.text-muted
+                      i.bi.bi-calendar-event.me-1
+                      | #{new Date(movie.release_date).getFullYear()}
+                  if movie.vote_average
+                    p.card-text
+                      span.badge.bg-warning.text-dark
+                        i.bi.bi-star-fill.me-1
+                        | #{movie.vote_average.toFixed(1)}/10
+                .card-footer.bg-transparent.border-top-0
+      
+      // Tab Film con Voto Più Alto
+      .tab-pane.fade#toprated(role='tabpanel')
+        h2.mb-4.text-center Film con Voto Più Alto
+        .row
+          each movie in topRatedMovies
+            .col-md-3.mb-4
+              .card.h-100.shadow-sm
+                if movie.poster_path
+                  a(href=`/movie/${movie.id}`)
+                    img.card-img-top(src=`https://image.tmdb.org/t/p/w500${movie.poster_path}` alt=movie.title)
+                else
+                  .card-img-top.bg-light.text-center.py-5
+                    i.bi.bi-film.fs-1
+                .card-body
+                  h5.card-title.text-truncate= movie.title
+                  if movie.release_date
+                    p.card-text.text-muted
+                      i.bi.bi-calendar-event.me-1
+                      | #{new Date(movie.release_date).getFullYear()}
+                  if movie.vote_average
+                    p.card-text
+                      span.badge.bg-warning.text-dark.fw-bold
+                        i.bi.bi-star-fill.me-1
+                        | #{movie.vote_average.toFixed(1)}/10
+                .card-footer.bg-transparent.border-top-0
+      
+      // Tab Film per Genere
+      .tab-pane.fade#genres(role='tabpanel')
+        h2.mb-4.text-center Film per Genere
+        
+        // Navigazione secondaria per i generi
+        ul.nav.nav-pills.mb-4#genreTabs(role='tablist')
+          each genreCategory, index in moviesByGenre
+            li.nav-item(role='presentation')
+              button.nav-link(class=index === 0 ? 'active' : '' id=`genre-${genreCategory.id}-tab` data-bs-toggle='pill' data-bs-target=`#genre-${genreCategory.id}` type='button' role='tab' aria-selected=index === 0 ? 'true' : 'false')
+                | #{genreCategory.name}
+        
+        // Contenuto dei tab per generi
+        .tab-content
+          each genreCategory, index in moviesByGenre
+            .tab-pane.fade(class=index === 0 ? 'show active' : '' id=`genre-${genreCategory.id}` role='tabpanel')
+              h3.mb-3 #{genreCategory.name}
+              .row
+                each movie in genreCategory.movies
+                  .col-md-3.mb-4
+                    .card.h-100.shadow-sm
+                      if movie.poster_path
+                        a(href=`/movie/${movie.id}`)
+                          img.card-img-top(src=`https://image.tmdb.org/t/p/w500${movie.poster_path}` alt=movie.title)
+                      else
+                        .card-img-top.bg-light.text-center.py-5
+                          i.bi.bi-film.fs-1
+                      .card-body
+                        h5.card-title.text-truncate= movie.title
+                        if movie.release_date
+                          p.card-text.text-muted
+                            i.bi.bi-calendar-event.me-1
+                            | #{new Date(movie.release_date).getFullYear()}
+                        if movie.vote_average
+                          p.card-text
+                            span.badge.bg-warning.text-dark
+                              i.bi.bi-star-fill.me-1
+                              | #{movie.vote_average.toFixed(1)}/10
+                      .card-footer.bg-transparent.border-top-0
+                        a.btn.btn-primary.btn-sm.w-100(href=`/movie/${movie.id}`)
+                          i.bi.bi-info-circle.me-1
+                          | Dettagli

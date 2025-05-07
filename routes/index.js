@@ -12,16 +12,83 @@ const {
   getPopularMovies,  // Recupera film popolari
   searchMovies,      // Ricerca film con filtri
   getMovieDetails,   // Recupera dettagli film
-  getMovieGenres     // Recupera lista generi
+  getMovieGenres,    // Recupera lista generi
+  getTopRatedMovies, // Recupera film con voto più alto
+  getMoviesByGenre   // Recupera film per genere
 } = require('./tmdb');
 
 /**
  * Rotta per la homepage
- * Mostra i film più popolari del momento
+ * Mostra diverse categorie di film: popolari, con voto più alto e per generi
  */
 router.get('/', async (req, res) => {
-  const movies = await getPopularMovies();  // Recupera lista film popolari
-  res.render('index', { movies });  // Renderizza la vista con i film
+  // Inizializza le variabili con array vuoti come valori predefiniti
+  let popularMovies = [];
+  let topRatedMovies = [];
+  let genres = [];
+  
+  try {
+    // Recupera in parallelo le diverse categorie di film
+    const results = await Promise.allSettled([
+      getPopularMovies(),
+      getTopRatedMovies(8),
+      getMovieGenres()
+    ]);
+    
+    // Assegna i risultati solo se la promise è stata risolta con successo
+    if (results[0].status === 'fulfilled') popularMovies = results[0].value;
+    if (results[1].status === 'fulfilled') topRatedMovies = results[1].value;
+    if (results[2].status === 'fulfilled') genres = results[2].value;
+    
+    // Seleziona 6 generi popolari
+    const popularGenreIds = [28, 35, 18, 27, 10749, 878]; // ID per Azione, Commedia, Drammatico, Horror, Romance, Fantascienza
+    
+    // Recupera film per ciascun genere selezionato con gestione errori
+    const genrePromises = popularGenreIds.map(async (genreId) => {
+      try {
+        const genreName = genres.find(g => g.id === genreId)?.name || 'Genere';
+        const moviesForGenre = await getMoviesByGenre(genreId, 8);
+        return {
+          id: genreId,
+          name: genreName,
+          movies: moviesForGenre || []
+        };
+      } catch (error) {
+        console.error(`Errore nel recupero dei film per il genere ${genreId}:`, error);
+        return {
+          id: genreId,
+          name: 'Genere',
+          movies: []
+        };
+      }
+    });
+    
+    const moviesByGenre = await Promise.allSettled(genrePromises)
+      .then(results => results
+        .filter(result => result.status === 'fulfilled')
+        .map(result => result.value));
+    
+    // Renderizza la vista con tutte le categorie di film
+    res.render('index', { 
+      popularMovies, 
+      topRatedMovies, 
+      moviesByGenre,
+      allGenres: genres
+    });
+  } catch (error) {
+    console.error('Errore nel recupero dei film per la homepage:', error);
+    // In caso di errore, renderizza la pagina con array vuoti
+    res.render('index', { 
+      popularMovies: [], 
+      topRatedMovies: [], 
+      moviesByGenre: popularGenreIds.map(genreId => ({
+        id: genreId,
+        name: 'Genere',
+        movies: []
+      })),
+      allGenres: []
+    });
+  }
 });
 
 /**

@@ -190,4 +190,54 @@ const searchMovies = async (filters) => {
     }
 };
 
-module.exports = { getPopularMovies, getMovieDetails, searchMovies, getMovieGenres };
+/**
+ * Recupera i film con il voto più alto
+ * @param {number} [limit=20] - Numero di film da recuperare
+ * @returns {Promise<Array>} Array di oggetti film con dettagli base
+ */
+const getTopRatedMovies = async (limit = 20) => {
+    try {
+        const response = await tmdbApi.get('movie/top_rated', {
+            params: {
+                page: 1,
+                'vote_count.gte': 100 // Solo film con almeno 100 voti
+            }
+        });
+        return response.data.results.slice(0, limit);
+    } catch (error) {
+        console.error('Errore nel recupero dei film con voto più alto:', error);
+        return [];
+    }
+};
+
+/**
+ * Recupera i film per un genere specifico
+ * @param {number} genreId - ID del genere
+ * @param {number} [limit=20] - Numero di film da recuperare
+ * @returns {Promise<Array>} Array di oggetti film con dettagli base
+ */
+const getMoviesByGenre = async (genreId, limit = 20) => {
+    try {
+        const response = await tmdbApi.get('discover/movie', {
+            params: {
+                with_genres: genreId,
+                sort_by: 'popularity.desc',
+                page: 1,
+                include_adult: false
+            }
+        });
+        return response.data.results.slice(0, limit);
+    } catch (error) {
+        console.error(`Errore nel recupero dei film per il genere ${genreId}:`, error);
+        return [];
+    }
+};
+
+module.exports = { 
+    getPopularMovies, 
+    getMovieDetails, 
+    searchMovies, 
+    getMovieGenres,
+    getTopRatedMovies,
+    getMoviesByGenre
+};
