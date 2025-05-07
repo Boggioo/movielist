@@ -32,24 +32,87 @@ const getPopularMovies = async () => {
 };
 
 /**
- * Recupera i dettagli completi di un film specifico, inclusi i crediti
+ * Recupera i dettagli completi di un film specifico, inclusi i crediti, trailer e piattaforme di streaming
  * @param {string|number} movieId - ID del film da recuperare
- * @returns {Promise<Object>} Oggetto con dettagli del film e primi 5 membri del cast
+ * @returns {Promise<Object>} Oggetto con dettagli del film, cast, regista, trailer e piattaforme di streaming
  */
 const getMovieDetails = async (movieId) => {
-    // Esegue in parallelo le richieste per dettagli e crediti
-    const [detailsResponse, creditsResponse] = await Promise.all([
+    // Esegue in parallelo le richieste per dettagli, crediti, video e provider
+    const [detailsResponse, creditsResponse, videosResponse, providersResponse] = await Promise.all([
         tmdbApi.get(`movie/${movieId}`),
-        tmdbApi.get(`movie/${movieId}/credits`)
+        tmdbApi.get(`movie/${movieId}/credits`),
+        tmdbApi.get(`movie/${movieId}/videos`),
+        tmdbApi.get(`movie/${movieId}/watch/providers`)
     ]);
 
     const details = detailsResponse.data;
     const credits = creditsResponse.data;
+    const videos = videosResponse.data;
+    const providers = providersResponse.data;
 
-    // Combina i dettagli con i primi 5 membri del cast
+    // Trova il regista tra i membri della crew
+    const director = credits.crew.find(member => member.job === 'Director');
+    
+    // Trova il trailer tra i video (preferibilmente in italiano)
+    let trailer = null;
+    if (videos.results && videos.results.length > 0) {
+        // Prima cerca un trailer ufficiale in italiano
+        trailer = videos.results.find(video => 
+            video.type === 'Trailer' && 
+            video.official === true && 
+            video.site === 'YouTube' &&
+            video.iso_639_1 === 'it'
+        );
+        
+        // Se non trovato, cerca un trailer ufficiale in qualsiasi lingua
+        if (!trailer) {
+            trailer = videos.results.find(video => 
+                video.type === 'Trailer' && 
+                video.official === true && 
+                video.site === 'YouTube'
+            );
+        }
+        
+        // Se ancora non trovato, prendi il primo video disponibile
+        if (!trailer && videos.results.length > 0) {
+            trailer = videos.results[0];
+        }
+    }
+    
+    // Estrai le piattaforme di streaming disponibili in Italia
+    let streamingProviders = [];
+    if (providers.results && providers.results.IT) {
+        const italianProviders = providers.results.IT;
+        
+        // Combina i provider di flatrate (abbonamento), rent (noleggio) e buy (acquisto)
+        if (italianProviders.flatrate) {
+            streamingProviders = [...streamingProviders, ...italianProviders.flatrate];
+        }
+        if (italianProviders.rent) {
+            // Aggiungi solo provider che non sono già presenti
+            italianProviders.rent.forEach(provider => {
+                if (!streamingProviders.some(p => p.provider_id === provider.provider_id)) {
+                    streamingProviders.push(provider);
+                }
+            });
+        }
+        if (italianProviders.buy) {
+            // Aggiungi solo provider che non sono già presenti
+            italianProviders.buy.forEach(provider => {
+                if (!streamingProviders.some(p => p.provider_id === provider.provider_id)) {
+                    streamingProviders.push(provider);
+                }
+            });
+        }
+    }
+
+    // Combina tutti i dettagli
     return {
         ...details,
-        cast: credits.cast.slice(0, 5)
+        cast: credits.cast.slice(0, 5),
+        director: director || null,
+        trailer: trailer,
+        streamingProviders: streamingProviders
     };
 };
 

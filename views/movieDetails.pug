@@ -62,4 +62,29 @@ block content
                         .d-flex.align-items-center
                           i.bi.bi-person-circle.me-2.fs-4
                           span= actor.name
+            
+            if movie.director
+              .mb-4
+                h4.text-primary.mb-3 Regista
+                .card.bg-light.border-0
+                  .card-body.py-2
+                    .d-flex.align-items-center
+                      i.bi.bi-camera-reels.me-2.fs-4
+                      span= movie.director.name
+            
+            if movie.trailer
+              .mb-4
+                h4.text-primary.mb-3 Trailer
+                .ratio.ratio-16x9.mb-3
+                  iframe(src=`https://www.youtube.com/embed/${movie.trailer.key}` allowfullscreen)
+            
+            if movie.streamingProviders && movie.streamingProviders.length
+              .mb-4
+                h4.text-primary.mb-3 Disponibile su
+                .d-flex.flex-wrap.gap-3
+                  each provider in movie.streamingProviders
+                    .text-center
+                      if provider.logo_path
+                        img.rounded.shadow-sm(src=`https://image.tmdb.org/t/p/w92${provider.logo_path}` alt=provider.provider_name width="50" height="50")
+                        .small.mt-1= provider.provider_name
 
