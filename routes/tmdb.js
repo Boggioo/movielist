@@ -1,5 +1,6 @@
-// Importa il modulo axios per effettuare richieste HTTP
+// Importa i moduli necessari
 const axios = require('axios');
+const ss = require('simple-statistics'); // Per calcoli statistici
 
 // Configura l'istanza di axios per l'API TMDB
 // - Imposta l'URL base per tutte le richieste
@@ -37,12 +38,13 @@ const getPopularMovies = async () => {
  * @returns {Promise<Object>} Oggetto con dettagli del film, cast, regista, trailer e piattaforme di streaming
  */
 const getMovieDetails = async (movieId) => {
-    // Esegue in parallelo le richieste per dettagli, crediti, video e provider
-    const [detailsResponse, creditsResponse, videosResponse, providersResponse] = await Promise.all([
+    // Esegue in parallelo le richieste per dettagli, crediti, video, provider e film simili
+    const [detailsResponse, creditsResponse, videosResponse, providersResponse, similarResponse] = await Promise.all([
         tmdbApi.get(`movie/${movieId}`),
         tmdbApi.get(`movie/${movieId}/credits`),
         tmdbApi.get(`movie/${movieId}/videos`),
-        tmdbApi.get(`movie/${movieId}/watch/providers`)
+        tmdbApi.get(`movie/${movieId}/watch/providers`),
+        tmdbApi.get(`movie/${movieId}/similar`)
     ]);
 
     const details = detailsResponse.data;
@@ -125,6 +127,31 @@ const getMovieDetails = async (movieId) => {
     }
 
     // Combina tutti i dettagli
+    // Calcola la similarità tra il film corrente e i film simili
+    const similarMovies = similarResponse.data.results.map(movie => {
+        // Calcola un punteggio di similarità basato su vari fattori
+        const factors = [
+            // Generi in comune
+            ss.mean(movie.genre_ids.map(id => details.genres.some(g => g.id === id) ? 1 : 0)),
+            // Differenza di voto (normalizzata)
+            1 - Math.abs(movie.vote_average - details.vote_average) / 10,
+            // Differenza temporale (se disponibile)
+            movie.release_date && details.release_date ? 
+                1 - Math.abs(new Date(movie.release_date).getFullYear() - new Date(details.release_date).getFullYear()) / 100 : 0.5
+        ];
+        
+        // Calcola il punteggio medio di similarità
+        const similarityScore = ss.mean(factors);
+        
+        return {
+            ...movie,
+            similarity_score: Math.round(similarityScore * 100)
+        };
+    })
+    // Ordina per punteggio di similarità e prendi i primi 6
+    .sort((a, b) => b.similarity_score - a.similarity_score)
+    .slice(0, 6);
+
     return {
         ...details,
         cast: credits.cast.slice(0, 8).map(actor => ({
@@ -133,7 +160,8 @@ const getMovieDetails = async (movieId) => {
         })),
         director,
         trailer,
-        streamingProviders
+        streamingProviders,
+        similarMovies
     };
 };
 

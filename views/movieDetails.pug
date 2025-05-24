@@ -113,6 +113,30 @@ block content
                         else
                           .badge.bg-info.mt-1.d-block= provider.availability_label
             
+            // Sezione Film Simili
+            if movie.similarMovies && movie.similarMovies.length
+              .mb-4
+                h4.text-primary.mb-3 Se ti è piacuto prova anche...
+                .row.g-3
+                  each similarMovie in movie.similarMovies
+                    .col-md-4.mb-3
+                      .card.border-0.shadow-sm.h-100
+                        a.text-decoration-none(href=`/movie/${similarMovie.id}`)
+                          if similarMovie.poster_path
+                            img.card-img-top(src=`https://image.tmdb.org/t/p/w342${similarMovie.poster_path}` alt=similarMovie.title)
+                          else
+                            .card-img-top.bg-light.text-center.py-5
+                              i.bi.bi-film.fs-1
+                          .card-body.p-3
+                            h5.card-title.mb-2.text-truncate= similarMovie.title
+                            .d-flex.justify-content-between.align-items-center
+                              span.badge.bg-success
+                                | #{similarMovie.similarity_score}% simile
+                              if similarMovie.vote_average
+                                span.badge.bg-warning.text-dark
+                                  i.bi.bi-star-fill.me-1
+                                  | #{similarMovie.vote_average.toFixed(1)}/10
+            
             // Sezione Recensioni
             .mb-4
               h4.text-primary.mb-3 Recensioni
