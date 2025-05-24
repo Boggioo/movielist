@@ -1,0 +1,57 @@
+extends layout
+
+block content
+  .container.py-4
+    if person
+      .row
+        .col-md-4.mb-4
+          if person.profile_path
+            img.img-fluid.rounded.shadow-sm(src=`https://image.tmdb.org/t/p/w500${person.profile_path}` alt=person.name)
+          else
+            .bg-light.text-center.py-5.rounded
+              i.bi.bi-person-circle.display-1
+        
+        .col-md-8
+          h1.mb-3= person.name
+          
+          if person.birthday
+            p.mb-2
+              strong Data di nascita: 
+              | #{new Date(person.birthday).toLocaleDateString('it-IT')}
+          
+          if person.place_of_birth
+            p.mb-2
+              strong Luogo di nascita: 
+              | #{person.place_of_birth}
+          
+          if person.biography
+            h4.text-primary.mt-4.mb-3 Biografia
+            p= person.biography
+          
+          if person.movies && person.movies.length
+            h4.text-primary.mt-4.mb-3 Filmografia
+            .row.g-3
+              each movie in person.movies
+                .col-md-6.mb-3
+                  .card.border-0.shadow-sm.h-100
+                    .row.g-0
+                      .col-4
+                        if movie.poster_path
+                          img.img-fluid.rounded-start(src=`https://image.tmdb.org/t/p/w185${movie.poster_path}` alt=movie.title)
+                        else
+                          .bg-light.text-center.py-4.rounded-start
+                            i.bi.bi-film.fs-1
+                      .col-8
+                        .card-body
+                          h6.card-title.mb-1
+                            a.text-decoration-none(href=`/movie/${movie.id}`)= movie.title
+                          if movie.release_date
+                            small.text-muted= new Date(movie.release_date).getFullYear()
+                          if movie.character
+                            p.card-text.small.mb-0
+                              em Ruolo: #{movie.character}
+                          else if movie.job
+                            p.card-text.small.mb-0
+                              em #{movie.job}
+    else
+      .alert.alert-warning Membro del cast non trovato.

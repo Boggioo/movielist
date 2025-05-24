@@ -14,7 +14,8 @@ const {
   getMovieDetails,   // Recupera dettagli film
   getMovieGenres,    // Recupera lista generi
   getTopRatedMovies, // Recupera film con voto più alto
-  getMoviesByGenre   // Recupera film per genere
+  getMoviesByGenre,  // Recupera film per genere
+  getCastMemberDetails // Recupera dettagli membro del cast
 } = require('./tmdb');
 
 /**
@@ -148,6 +149,16 @@ router.get('/movie/:id', async (req, res) => {
   const movieId = req.params.id;  // ID del film dai parametri URL
   const movie = await getMovieDetails(movieId);  // Recupera dettagli completi
   res.render('movieDetails', { movie });  // Renderizza la vista dettagli
+});
+
+/**
+ * Rotta per visualizzare i dettagli di un membro del cast
+ * Mostra biografia, filmografia e altre informazioni
+ */
+router.get('/person/:id', async (req, res) => {
+  const personId = req.params.id;
+  const person = await getCastMemberDetails(personId);
+  res.render('castMember', { person });
 });
 
 module.exports = router;

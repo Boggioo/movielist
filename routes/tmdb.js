@@ -236,11 +236,43 @@ const getMoviesByGenre = async (genreId, limit = 20) => {
     }
 };
 
+/**
+ * Recupera i dettagli di un membro del cast (attore o regista)
+ * @param {string|number} personId - ID della persona da recuperare
+ * @returns {Promise<Object>} Oggetto con dettagli della persona e filmografia
+ */
+const getCastMemberDetails = async (personId) => {
+    try {
+        // Esegue in parallelo le richieste per dettagli persona e filmografia
+        const [detailsResponse, creditsResponse] = await Promise.all([
+            tmdbApi.get(`person/${personId}`),
+            tmdbApi.get(`person/${personId}/movie_credits`)
+        ]);
+
+        const details = detailsResponse.data;
+        const credits = creditsResponse.data;
+
+        // Ordina i film per data di uscita (dal più recente)
+        const sortedMovies = [...credits.cast || [], ...credits.crew || []]
+            .filter(movie => movie.release_date) // Filtra i film senza data
+            .sort((a, b) => new Date(b.release_date) - new Date(a.release_date));
+
+        return {
+            ...details,
+            movies: sortedMovies.slice(0, 20) // Limita a 20 film più recenti
+        };
+    } catch (error) {
+        console.error(`Errore nel recupero dei dettagli del membro del cast ${personId}:`, error);
+        return null;
+    }
+};
+
 module.exports = { 
     getPopularMovies, 
     getMovieDetails, 
     searchMovies, 
     getMovieGenres,
     getTopRatedMovies,
-    getMoviesByGenre
+    getMoviesByGenre,
+    getCastMemberDetails
 };
