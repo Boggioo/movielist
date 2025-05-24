@@ -18,6 +18,10 @@ const {
   getCastMemberDetails // Recupera dettagli membro del cast
 } = require('./tmdb');
 
+// Importazione dei modelli
+const Review = require('../models/review');
+const User = require('../models/user');
+
 /**
  * Rotta per la homepage
  * Mostra diverse categorie di film: popolari, con voto più alto e per generi
@@ -158,8 +162,57 @@ router.get('/movie/:id', async (req, res) => {
     });
     isFavorite = !!favorite;
   }
+
+  // Recupera le recensioni per questo film
+  const reviews = await Review.findAll({
+    where: { movieId },
+    include: [{ model: User, attributes: ['username'] }],
+    order: [['createdAt', 'DESC']]
+  });
   
-  res.render('movieDetails', { movie, isFavorite });  // Renderizza la vista dettagli
+  res.render('movieDetails', { movie, isFavorite, reviews });  // Renderizza la vista dettagli
+});
+
+// Rotta per aggiungere o aggiornare una recensione
+router.post('/movie/:id/review', async (req, res) => {
+  if (!req.user) {
+    return res.redirect('/login');
+  }
+
+  const movieId = req.params.id;
+  const { rating, comment } = req.body;
+
+  try {
+    // Cerca una recensione esistente
+    const existingReview = await Review.findOne({
+      where: {
+        userId: req.user.id,
+        movieId: movieId
+      }
+    });
+
+    if (existingReview) {
+      // Aggiorna la recensione esistente
+      await existingReview.update({
+        rating: parseInt(rating),
+        comment,
+        updatedAt: new Date()
+      });
+    } else {
+      // Crea una nuova recensione
+      await Review.create({
+        userId: req.user.id,
+        movieId,
+        rating: parseInt(rating),
+        comment
+      });
+    }
+
+    res.redirect(`/movie/${movieId}`);
+  } catch (error) {
+    console.error('Errore nel salvataggio della recensione:', error);
+    res.redirect(`/movie/${movieId}`);
+  }
 });
 
 /**
@@ -170,6 +223,29 @@ router.get('/person/:id', async (req, res) => {
   const personId = req.params.id;
   const person = await getCastMemberDetails(personId);
   res.render('castMember', { person });
+});
+
+// Rotta per eliminare una recensione
+router.post('/movie/:id/review/delete', async (req, res) => {
+  if (!req.user) {
+    return res.redirect('/login');
+  }
+
+  const movieId = req.params.id;
+
+  try {
+    await Review.destroy({
+      where: {
+        userId: req.user.id,
+        movieId: movieId
+      }
+    });
+
+    res.redirect('/reviews');
+  } catch (error) {
+    console.error('Errore durante l\'eliminazione della recensione:', error);
+    res.redirect('/reviews');
+  }
 });
 
 module.exports = router;

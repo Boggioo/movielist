@@ -1,0 +1,26 @@
+extends layout
+
+block content
+  h1.mb-4 Le mie recensioni
+  
+  if reviews && reviews.length > 0
+    .row
+      each review in reviews
+        .col-md-6.mb-4
+          .card
+            .card-body
+              h5.card-title= review.movie.title
+              .d-flex.align-items-center.mb-2
+                .rating-badge.bg-primary.text-white.p-2.rounded.me-2
+                  span.h5.mb-0= `${review.rating}/10`
+                span.text-muted Valutazione
+              p.card-text= review.comment
+              .text-muted.small= new Date(review.createdAt).toLocaleDateString('it-IT')
+              .d-flex.gap-2.mt-2
+                a.btn.btn-primary.btn-sm(href=`/movie/${review.movieId}`) Vai al film
+                form(action=`/movie/${review.movieId}/review/delete` method='POST' style='display: inline')
+                  button.btn.btn-danger.btn-sm(type='submit') Elimina recensione
+  else
+    .alert.alert-info
+      p Non hai ancora scritto recensioni.
+      a.btn.btn-primary.mt-2(href='/') Sfoglia i film popolari

@@ -5,6 +5,7 @@ const LocalStrategy = require('passport-local').Strategy;  // Strategia di auten
 const router = express.Router();            // Router Express
 const User = require('../models/user');     // Modello utente
 const Favorite = require('../models/favorite');  // Modello preferiti
+const Review = require('../models/review');  // Modello recensioni
 const { getMovieDetails } = require('./tmdb');  // Funzioni API TMDB
 const flash = require('connect-flash');     // Messaggi flash per notifiche
 
@@ -164,6 +165,36 @@ router.post('/favorite/remove/:movieId', async (req, res) => {
     } else {
         res.redirect(`/movie/${movieId}`);
     }
+});
+
+// Visualizza le recensioni dell'utente
+router.get('/reviews', async (req, res) => {
+    if (!req.user) {
+        return res.redirect('/login');
+    }
+
+    const reviews = await Review.findAll({ 
+        where: { userId: req.user.id },
+        include: [{ 
+            model: User, 
+            attributes: ['username'] 
+        }],
+        order: [['createdAt', 'DESC']]
+    });
+
+    // Recupera i dettagli dei film per ogni recensione
+    const reviewsWithMovies = await Promise.all(reviews.map(async (review) => {
+        const movie = await getMovieDetails(review.movieId);
+        return {
+            ...review.toJSON(),
+            movie: {
+                title: movie.title,
+                poster_path: movie.poster_path
+            }
+        };
+    }));
+
+    res.render('reviews', { reviews: reviewsWithMovies });
 });
 
 module.exports = router;
