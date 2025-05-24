@@ -106,7 +106,6 @@ router.get('/logout', (req, res) => {
     });
 });
 
-// Aggiungi film ai preferiti
 // Aggiunta di un film ai preferiti
 router.post('/favorite/:movieId', async (req, res) => {
     // Verifica che l'utente sia autenticato

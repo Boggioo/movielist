@@ -53,7 +53,7 @@ const getMovieDetails = async (movieId) => {
     // Trova il regista tra i membri della crew
     const director = credits.crew.find(member => member.job === 'Director');
     
-    // Trova il trailer tra i video (preferibilmente in italiano)
+    // Trova il trailer tra i video
     let trailer = null;
     if (videos.results && videos.results.length > 0) {
         // Prima cerca un trailer ufficiale in italiano
@@ -109,10 +109,13 @@ const getMovieDetails = async (movieId) => {
     // Combina tutti i dettagli
     return {
         ...details,
-        cast: credits.cast.slice(0, 5),
-        director: director || null,
-        trailer: trailer,
-        streamingProviders: streamingProviders
+        cast: credits.cast.slice(0, 8).map(actor => ({
+            ...actor,
+            profile_path: actor.profile_path
+        })),
+        director,
+        trailer,
+        streamingProviders
     };
 };
 
