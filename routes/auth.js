@@ -152,12 +152,18 @@ router.post('/favorite/remove/:movieId', async (req, res) => {
     
     const movieId = req.params.movieId;
     const userId = req.user.id;
+    const source = req.query.source || 'movie';
     
     await Favorite.destroy({
         where: { userId, movieId }
     });
     
-    res.redirect('/favorites');
+    // Reindirizza in base alla pagina di provenienza
+    if (source === 'favorites') {
+        res.redirect('/favorites');
+    } else {
+        res.redirect(`/movie/${movieId}`);
+    }
 });
 
 module.exports = router;

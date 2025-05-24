@@ -148,7 +148,18 @@ router.get('/search', async (req, res) => {
 router.get('/movie/:id', async (req, res) => {
   const movieId = req.params.id;  // ID del film dai parametri URL
   const movie = await getMovieDetails(movieId);  // Recupera dettagli completi
-  res.render('movieDetails', { movie });  // Renderizza la vista dettagli
+  
+  // Verifica se il film è tra i preferiti dell'utente
+  let isFavorite = false;
+  if (req.user) {
+    const Favorite = require('../models/favorite');
+    const favorite = await Favorite.findOne({
+      where: { userId: req.user.id, movieId }
+    });
+    isFavorite = !!favorite;
+  }
+  
+  res.render('movieDetails', { movie, isFavorite });  // Renderizza la vista dettagli
 });
 
 /**

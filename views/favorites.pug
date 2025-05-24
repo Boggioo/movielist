@@ -16,7 +16,7 @@ block content
             .card-body
               h5.card-title= favorite.title
               a.btn.btn-primary.btn-sm(href=`/movie/${favorite.movieId}`) Dettagli
-              form.d-inline.ms-2(action=`/favorite/remove/${favorite.movieId}` method='POST')
+              form.d-inline.ms-2(action=`/favorite/remove/${favorite.movieId}?source=favorites` method='POST')
                 button.btn.btn-danger.btn-sm(type='submit')
                   i.bi.bi-trash
                   span.ms-1 Rimuovi

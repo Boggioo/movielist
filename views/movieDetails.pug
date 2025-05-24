@@ -12,10 +12,16 @@ block content
               i.bi.bi-film.fs-1
           .card-body.p-4
             if user
-              form.d-grid.gap-2(action=`/favorite/${movie.id}` method='POST')
-                button.btn.btn-primary.btn-lg(type='submit')
-                  i.bi.bi-heart-fill.me-2
-                  | Aggiungi ai Preferiti
+              if isFavorite
+                form.d-grid.gap-2(action=`/favorite/remove/${movie.id}` method='POST')
+                  button.btn.btn-danger.btn-lg(type='submit')
+                    i.bi.bi-heart-break.me-2
+                    | Rimuovi dai Preferiti
+              else
+                form.d-grid.gap-2(action=`/favorite/${movie.id}` method='POST')
+                  button.btn.btn-primary.btn-lg(type='submit')
+                    i.bi.bi-heart-fill.me-2
+                    | Aggiungi ai Preferiti
             else
               a.btn.btn-primary.btn-lg.d-block(href='/login')
                 i.bi.bi-heart-fill.me-2
@@ -101,4 +107,9 @@ block content
                       if provider.logo_path
                         img.rounded.shadow-sm(src=`https://image.tmdb.org/t/p/w92${provider.logo_path}` alt=provider.provider_name width="50" height="50")
                         .small.mt-1= provider.provider_name
+                        if Array.isArray(provider.availability_label)
+                          each label in provider.availability_label
+                            .badge.bg-info.mt-1.d-block= label
+                        else
+                          .badge.bg-info.mt-1.d-block= provider.availability_label
 

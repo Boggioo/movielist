@@ -15,11 +15,6 @@ html(lang="it")
         button.navbar-toggler(type='button' data-bs-toggle='collapse' data-bs-target='#navbarNav')
           span.navbar-toggler-icon
         #navbarNav.collapse.navbar-collapse
-          if user
-            .user-status-indicator.me-3
-              span.badge.bg-success.text-dark
-                i.bi.bi-check-circle.me-1
-                | Connesso come #{user.username}
           ul.navbar-nav.ms-auto
             if user
               li.nav-item.dropdown

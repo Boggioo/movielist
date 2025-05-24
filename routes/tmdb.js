@@ -84,23 +84,41 @@ const getMovieDetails = async (movieId) => {
     if (providers.results && providers.results.IT) {
         const italianProviders = providers.results.IT;
         
-        // Combina i provider di flatrate (abbonamento), rent (noleggio) e buy (acquisto)
+        // Aggiungi provider con tipo di disponibilità
         if (italianProviders.flatrate) {
-            streamingProviders = [...streamingProviders, ...italianProviders.flatrate];
+            streamingProviders = [...streamingProviders, ...italianProviders.flatrate.map(provider => ({
+                ...provider,
+                availability_type: 'subscription',
+                availability_label: 'Abbonamento'
+            }))];
         }
         if (italianProviders.rent) {
-            // Aggiungi solo provider che non sono già presenti
             italianProviders.rent.forEach(provider => {
-                if (!streamingProviders.some(p => p.provider_id === provider.provider_id)) {
-                    streamingProviders.push(provider);
+                const existingProvider = streamingProviders.find(p => p.provider_id === provider.provider_id);
+                if (existingProvider) {
+                    existingProvider.availability_type = [...(existingProvider.availability_type || []), 'rent'];
+                    existingProvider.availability_label = [...(existingProvider.availability_label || []), 'Noleggio'];
+                } else {
+                    streamingProviders.push({
+                        ...provider,
+                        availability_type: ['rent'],
+                        availability_label: ['Noleggio']
+                    });
                 }
             });
         }
         if (italianProviders.buy) {
-            // Aggiungi solo provider che non sono già presenti
             italianProviders.buy.forEach(provider => {
-                if (!streamingProviders.some(p => p.provider_id === provider.provider_id)) {
-                    streamingProviders.push(provider);
+                const existingProvider = streamingProviders.find(p => p.provider_id === provider.provider_id);
+                if (existingProvider) {
+                    existingProvider.availability_type = [...(existingProvider.availability_type || []), 'buy'];
+                    existingProvider.availability_label = [...(existingProvider.availability_label || []), 'Acquisto'];
+                } else {
+                    streamingProviders.push({
+                        ...provider,
+                        availability_type: ['buy'],
+                        availability_label: ['Acquisto']
+                    });
                 }
             });
         }
