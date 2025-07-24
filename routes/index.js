@@ -4,7 +4,7 @@
  */
 
 // Importazione delle dipendenze
-const express = require('express');  // Framework web
+const express = require('express');
 const router = express.Router();     // Router Express
 
 // Importazione delle funzioni API TMDB
@@ -36,7 +36,7 @@ router.get('/', async (req, res) => {
     // Recupera in parallelo le diverse categorie di film
     const results = await Promise.allSettled([
       getPopularMovies(),
-      getTopRatedMovies(8),
+      getTopRatedMovies(30),
       getMovieGenres()
     ]);
     
@@ -52,7 +52,7 @@ router.get('/', async (req, res) => {
     const genrePromises = popularGenreIds.map(async (genreId) => {
       try {
         const genreName = genres.find(g => g.id === genreId)?.name || 'Genere';
-        const moviesForGenre = await getMoviesByGenre(genreId, 8);
+        const moviesForGenre = await getMoviesByGenre(genreId, 20);
         return {
           id: genreId,
           name: genreName,
@@ -106,7 +106,7 @@ router.get('/search', async (req, res) => {
   const vote = req.query.vote || '';
   let selectedGenres = req.query.genres || [];
   
-  // Assicuriamoci che selectedGenres sia sempre un array
+  // Assicura che selectedGenres sia sempre un array
   if (!Array.isArray(selectedGenres)) {
     selectedGenres = [selectedGenres];
   }

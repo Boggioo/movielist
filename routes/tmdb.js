@@ -75,18 +75,18 @@ const getMovieDetails = async (movieId) => {
             );
         }
         
-        // Se ancora non trovato, prendi il primo video disponibile
+        // Se ancora non trovato, prende il primo video disponibile
         if (!trailer && videos.results.length > 0) {
             trailer = videos.results[0];
         }
     }
     
-    // Estrai le piattaforme di streaming disponibili in Italia
+    // Si estraggono le piattaforme di streaming disponibili in Italia
     let streamingProviders = [];
     if (providers.results && providers.results.IT) {
         const italianProviders = providers.results.IT;
         
-        // Aggiungi provider con tipo di disponibilità
+        // Si aggiunge provider con tipo di disponibilità
         if (italianProviders.flatrate) {
             streamingProviders = [...streamingProviders, ...italianProviders.flatrate.map(provider => ({
                 ...provider,

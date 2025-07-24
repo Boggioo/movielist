@@ -1,8 +1,8 @@
 // Importazione delle dipendenze necessarie
-const express = require('express');         // Framework web
+const express = require('express');
 const passport = require('passport');       // Middleware di autenticazione
 const LocalStrategy = require('passport-local').Strategy;  // Strategia di autenticazione locale
-const router = express.Router();            // Router Express
+const router = express.Router(); 
 const User = require('../models/user');     // Modello utente
 const Favorite = require('../models/favorite');  // Modello preferiti
 const Review = require('../models/review');  // Modello recensioni
